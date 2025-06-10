@@ -45,8 +45,12 @@ export default function SymptomsForm() {
         // nevalidný JSON? Nechaj pôvodný text
       }
       setAiResult(display);
-    } catch (err: any) {
-      setError(err.message ?? "Neznáma chyba");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message ?? "Neznáma chyba");
+      } else {
+        setError("Neznáma chyba");
+      }
     } finally {
       setLoading(false);
     }
