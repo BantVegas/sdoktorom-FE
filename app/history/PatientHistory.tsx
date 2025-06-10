@@ -20,32 +20,31 @@ export default function PatientHistory({ patientId }: Props) {
   const [loading, setLoading] = useState(true);
   const [sendingId, setSendingId] = useState<number | null>(null);
 
-useEffect(() => {
-  async function fetchMessages() {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/messages/patient/${patientId}`);
-      if (!res.ok) throw new Error("Nepodarilo sa načítať správy");
-      const data: Message[] = await res.json();
-      setMessages(
-        data.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
-      } else {
-        alert(String(error));
+  useEffect(() => {
+    async function fetchMessages() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/messages/patient/${patientId}`);
+        if (!res.ok) throw new Error("Nepodarilo sa načítať správy");
+        const data: Message[] = await res.json();
+        setMessages(
+          data.sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        );
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          alert(error.message);
+        } else {
+          alert(String(error));
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
     }
-  }
-  fetchMessages();
-}, [patientId]);
-
+    fetchMessages();
+  }, [patientId]);
 
   const selectedMsg = messages.find((m) => m.id === selectedId);
 
@@ -61,8 +60,12 @@ useEffect(() => {
       setMessages((msgs) =>
         msgs.map((m) => (m.id === id ? { ...m, sentToDoctor: true } : m))
       );
-    } catch (error: any) {
-      alert(error.message || error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert(String(error));
+      }
     } finally {
       setSendingId(null);
     }
